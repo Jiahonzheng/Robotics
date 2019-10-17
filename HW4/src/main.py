@@ -31,12 +31,36 @@ distance_left_right = 28 * 0.2
 distance_front_rear = 30 * 0.2
 
 
+def pid_control(kp: float, ki: float, kd: float):
+    """PID Control.
+
+    :param kp: the proportional factor
+    :param ki: the integral factor
+    :param kd: the derivative factor
+    :return: a function that processes the error
+    """
+    prev_error = 0
+    integral = 0
+    derivative = 0
+
+    def control(error: float):
+        nonlocal prev_error
+        nonlocal integral
+        nonlocal derivative
+        integral = integral + error
+        derivative = error - prev_error
+        prev_error = error
+        return kp * error + ki * integral + kd * derivative
+
+    return control
+
+
 def steer(angle: float):
     """Steer for specific angle.
 
     :param angle: the desired angle we want the car to steer
     """
-    angle = angle * math.pi / 180
+    # angle = angle * math.pi / 180
     if angle == 0:
         angle = 1
     common = distance_front_rear / math.tan(angle)
@@ -122,6 +146,15 @@ def main():
     vrep.simxGetVisionSensorImage(clientID, obstacle_sensor, 0, vrep.simx_opmode_streaming)
     time.sleep(1)
 
+    # PID Parameters
+    # Motor Kp Ki Kd
+    # 5 0.01 0 0
+    # 10 0.0001 0.0005
+
+    pid = pid_control(1, 0.0001, 0.0005)
+    # Set the Power!
+    motor(10)
+
     # Start the main loop.
     while vrep.simxGetConnectionId(clientID) != -1:
         raw = get_line_image()
@@ -136,10 +169,7 @@ def main():
 
         # Calculate the angle we want to steer.
         angle = math.atan((128 - cx) / cy)
-        steer(angle * 180 / math.pi)
-
-        # Set the Power!
-        motor(5)
+        steer(pid(angle))
 
         cv2.imshow("result", img)
         if cv2.waitKey(1) & 0xFF == ord('q'):
