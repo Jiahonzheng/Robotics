@@ -16,21 +16,21 @@ def main():
 
     # Start the main loop.
     while vrep.simxGetConnectionId(clientID) != -1:
-        raw = get_line_image()
+        line_raw = get_line_image()
         # Crop the line image.
-        raw = raw[128:192, :]
+        line_raw = line_raw[128:192, :]
         # Find the desired moment.
-        ret = get_moment(raw)
+        ret = get_moment(line_raw)
         if ret is None:
             continue
 
-        cx, cy, img = ret
+        cx, cy, line_img = ret
 
         # Calculate the angle we want to steer.
         angle = math.atan((128 - cx) / cy)
         steer(pid(angle))
 
-        cv2.imshow("result", img)
+        cv2.imshow("result", line_img)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 

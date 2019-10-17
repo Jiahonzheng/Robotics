@@ -88,9 +88,9 @@ def motor(speed: float):
 
 
 def get_line_image():
-    """Retrieve image from the vision sensor.
+    """Retrieve image from Line Vision Sensor.
 
-    :return: image represented by numpy.ndarray from the vision sensor
+    :return: an image represented by numpy.ndarray from Line Vision Sensor
     """
     err, resolution, raw = vrep.simxGetVisionSensorImage(clientID, line_sensor, 0, vrep.simx_opmode_buffer)
     if err == vrep.simx_return_ok:
