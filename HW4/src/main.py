@@ -31,7 +31,7 @@ distance_left_right = 28 * 0.2
 distance_front_rear = 30 * 0.2
 
 
-def pid_control(kp: float, ki: float, kd: float):
+def pid_controller(kp: float, ki: float, kd: float):
     """PID Control.
 
     :param kp: the proportional factor
@@ -43,7 +43,7 @@ def pid_control(kp: float, ki: float, kd: float):
     integral = 0
     derivative = 0
 
-    def control(error: float):
+    def pid(error: float):
         nonlocal prev_error
         nonlocal integral
         nonlocal derivative
@@ -52,7 +52,7 @@ def pid_control(kp: float, ki: float, kd: float):
         prev_error = error
         return kp * error + ki * integral + kd * derivative
 
-    return control
+    return pid
 
 
 def steer(angle: float):
@@ -151,7 +151,7 @@ def main():
     # 5 0.01 0 0
     # 10 0.0001 0.0005
 
-    pid = pid_control(1, 0.0001, 0.0005)
+    pid = pid_controller(1, 0.0001, 0.0005)
     # Set the Power!
     motor(10)
 
