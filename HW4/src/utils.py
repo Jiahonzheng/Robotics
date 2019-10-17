@@ -19,7 +19,7 @@ _, l_motor = vrep.simxGetObjectHandle(clientID, 'MyBot_FLwheel_Motor', vrep.simx
 _, l_steer = vrep.simxGetObjectHandle(clientID, 'MyBot_FLwheel_Steer', vrep.simx_opmode_oneshot_wait)
 _, r_motor = vrep.simxGetObjectHandle(clientID, 'MyBot_FRwheel_Motor', vrep.simx_opmode_oneshot_wait)
 _, r_steer = vrep.simxGetObjectHandle(clientID, 'MyBot_FRwheel_Steer', vrep.simx_opmode_oneshot_wait)
-_, line_sensor = vrep.simxGetObjectHandle(clientID, 'MyBot_Line_Vision_Sensor', vrep.simx_opmode_oneshot_wait)
+_, lane_sensor = vrep.simxGetObjectHandle(clientID, 'MyBot_Lane_Vision_Sensor', vrep.simx_opmode_oneshot_wait)
 _, obstacle_sensor = vrep.simxGetObjectHandle(clientID, 'MyBot_Obstacle_Vision_Sensor', vrep.simx_opmode_oneshot_wait)
 
 # Display processed image, just for debugging!
@@ -34,7 +34,7 @@ distance_front_rear = 30 * 0.2
 def init():
     """Initialize the simulation.
     """
-    vrep.simxGetVisionSensorImage(clientID, line_sensor, 0, vrep.simx_opmode_streaming)
+    vrep.simxGetVisionSensorImage(clientID, lane_sensor, 0, vrep.simx_opmode_streaming)
     vrep.simxGetVisionSensorImage(clientID, obstacle_sensor, 0, vrep.simx_opmode_streaming)
     time.sleep(1)
 
@@ -87,12 +87,12 @@ def motor(speed: float):
     _ = vrep.simxSetJointTargetVelocity(clientID, r_motor, speed, vrep.simx_opmode_oneshot)
 
 
-def get_line_image():
-    """Retrieve image from Line Vision Sensor.
+def get_lane_image():
+    """Retrieve image from Lane Vision Sensor.
 
-    :return: an image represented by numpy.ndarray from Line Vision Sensor
+    :return: an image represented by numpy.ndarray from Lane Vision Sensor
     """
-    err, resolution, raw = vrep.simxGetVisionSensorImage(clientID, line_sensor, 0, vrep.simx_opmode_buffer)
+    err, resolution, raw = vrep.simxGetVisionSensorImage(clientID, lane_sensor, 0, vrep.simx_opmode_buffer)
     if err == vrep.simx_return_ok:
         image = np.array(raw, dtype=np.uint8)
         image.resize([resolution[1], resolution[0], 3])
