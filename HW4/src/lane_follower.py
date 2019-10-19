@@ -24,19 +24,18 @@ def main():
         # Crop the lane image.
         lane_raw = lane_raw[128:192, :]
         # Find the desired moment.
-        ret = get_moment(lane_raw)
+        ret = follow_lane(lane_raw)
         if ret is None:
             continue
 
-        cx, cy, lane_img = ret
-
-        # Calculate the angle we want to steer.
-        angle = math.atan((128 - cx) / cy)
-
         # Steer for calculated angle.
+        angle, img = ret
         steer(pid(angle))
 
-        cv2.imshow("result", lane_img)
+        # Show the processed image.
+        cv2.imshow("result", img)
+
+        # When we press "q", it quits the simulation.
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
