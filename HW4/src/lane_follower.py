@@ -21,10 +21,8 @@ def main():
         if lane_raw is None:
             continue
 
-        # Crop the lane image.
-        lane_raw = lane_raw[128:192, :]
-        # Find the desired moment.
-        ret = follow_lane(lane_raw)
+        # Follow the lane.
+        ret = follow_lane(lane_raw.copy())
         if ret is None:
             continue
 

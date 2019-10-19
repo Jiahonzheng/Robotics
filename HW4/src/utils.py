@@ -69,7 +69,6 @@ def steer(angle: float):
 
     :param angle: the desired angle we want the car to steer
     """
-    # angle = angle * math.pi / 180
     if angle == 0:
         angle = 1
     common = distance_front_rear / math.tan(angle)
@@ -166,20 +165,10 @@ def follow_lane(img: np.ndarray):
     :param img: the Lane image
     :return: the steering angle
     """
-    # Convert image to greyscale.
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    # Process image using Gaussian blur.
-    blur = cv2.GaussianBlur(gray, (5, 5), 0)
-    # Process image using Color Threshold.
-    _, thresh = cv2.threshold(blur, 60, 255, cv2.THRESH_BINARY_INV)
-    # Erode and dilate to remove accidental line detections.
-    mask = cv2.erode(thresh, None, iterations=2)
-    mask = cv2.dilate(mask, None, iterations=2)
-
-    # Find the contours of the image.
-    contours = cv2.findContours(mask.copy(), 1, cv2.CHAIN_APPROX_NONE)
-    # Use imutils to unpack contours.
-    contours = imutils.grab_contours(contours)
+    # Crop the lane image.
+    img = img[128:192, :]
+    # Get the contours.
+    contours = get_contours(img)
     if len(contours) == 0:
         return None
 
@@ -191,7 +180,7 @@ def follow_lane(img: np.ndarray):
     # Point out the desired moment and contour on the image.
     cv2.line(img, (cx, 0), (cx, 720), (255, 0, 0), 1)
     cv2.line(img, (0, cy), (1280, cy), (255, 0, 0), 1)
-    cv2.drawContours(img, contours, -1, (0, 255, 0), 1)
+    cv2.drawContours(img, c, -1, (0, 255, 0), 1)
 
     # Calculate the angle we want to steer.
     angle = math.atan((128 - cx) / cy)
@@ -219,7 +208,7 @@ def get_other_lane(img: np.ndarray):
 
     # The biggest contour which doesn't have the center point is what we want.
     for i in reversed(range(len(contours))):
-        if cv2.pointPolygonTest(contours[i], (128, 0), False) == -1:
+        if cv2.pointPolygonTest(contours[i], (132, 0), False) == -1:
             c = contours[i]
 
     # Get the moment of the desired contour.

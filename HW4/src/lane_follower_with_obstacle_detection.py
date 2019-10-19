@@ -19,30 +19,27 @@ def main():
     # Start the main loop.
     while vrep.simxGetConnectionId(clientID) != -1:
         simulation_time = vrep.simxGetLastCmdTime(clientID)
-        if simulation_time - avoid_obstacle_time <= 1000:
-            continue
 
         # Read the Proximity Sensor to determine whether we detect the obstacle.
         ret = vrep.simxReadProximitySensor(clientID, proximity_sensor, vrep.simx_opmode_streaming)
+
+        if simulation_time - avoid_obstacle_time <= 1000:
+            continue
+
         if ret[1] is False:  # When there is no obstacle.
             # Retrieve the image from Lane Vision Sensor.
             lane_raw = get_lane_image()
             if lane_raw is None:
                 continue
 
-            # Crop the lane image.
-            lane_raw = lane_raw[128:192, :]
-            # Find the desired moment.
-            ret = follow_lane(lane_raw)
+            # Follow the lane.
+            ret = follow_lane(lane_raw.copy())
             if ret is None:
                 continue
 
             # Steer for calculated angle.
             angle, img = ret
             steer(pid(angle))
-
-            # Show the processed image.
-            cv2.imshow("Lane", img)
         else:  # When there is an obstacle.
             obstacle_raw = get_obstacle_image()
             if obstacle_raw is None:
