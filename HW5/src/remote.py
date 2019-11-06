@@ -1,6 +1,7 @@
 import time
 
 import cv2
+import math
 import numpy as np
 
 import vrep
@@ -60,3 +61,17 @@ def move(v, o):
     o_r = v_r / wheel_radius
     vrep.simxSetJointTargetVelocity(clientID, left_motor, o_l, vrep.simx_opmode_oneshot)
     vrep.simxSetJointTargetVelocity(clientID, right_motor, o_r, vrep.simx_opmode_oneshot)
+
+
+def get_beta_angle():
+    """Return the degrees of Beta Euler Angle.
+
+    :return: the degrees of Beta Euler Angle
+    """
+    _, euler_angles = vrep.simxGetObjectOrientation(clientID, bot, -1, vrep.simx_opmode_oneshot_wait)
+    ret = math.degrees(euler_angles[1])
+    if euler_angles[0] <= 0 < ret:
+        return 180 - ret
+    if euler_angles[2] <= 0 and ret < 0:
+        return -180 - ret
+    return ret
