@@ -1,9 +1,8 @@
-from typing import List, Tuple
+from typing import List
 
 import cv2
-import numpy as np
 
-from utils import get_obstacles, draw_path, distance
+from utils import *
 
 
 def path_pruning(path: np.ndarray, obstacles: List[Tuple[int, int, int]]):
@@ -39,7 +38,9 @@ def path_pruning(path: np.ndarray, obstacles: List[Tuple[int, int, int]]):
                 to = max(to, j)
         pruned_path.append(path[to])
         cur = to
-    return np.array(pruned_path)
+    ret = np.array(pruned_path)
+    np.savetxt("pruned_solution.txt", ret)
+    return ret
 
 
 def main():
@@ -55,6 +56,9 @@ def main():
     # Prune the solution path.
     pruned_path = path_pruning(path, get_obstacles(img))
     cv2.imshow("Pruned Solution", draw_path(img.copy(), pruned_path))
+
+    for i in range(len(pruned_path)):
+        print(world_coordinate(pruned_path[i]))
 
     # When we press "q", the program will exit.
     while True:
