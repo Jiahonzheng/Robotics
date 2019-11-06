@@ -11,8 +11,10 @@ vrep.simxFinish(-1)
 clientID = vrep.simxStart("127.0.0.1", 19999, True, True, 5000, 5)
 
 # Get object handles.
-_, bot = vrep.simxGetObjectHandle(clientID, 'Car', vrep.simx_opmode_oneshot_wait)
+_, bot = vrep.simxGetObjectHandle(clientID, 'MyBot', vrep.simx_opmode_oneshot_wait)
 _, vision_sensor = vrep.simxGetObjectHandle(clientID, 'Vision_Sensor', vrep.simx_opmode_oneshot_wait)
+_, left_motor = vrep.simxGetObjectHandle(clientID, 'Left_Motor', vrep.simx_opmode_oneshot_wait)
+_, right_motor = vrep.simxGetObjectHandle(clientID, 'Right_Motor', vrep.simx_opmode_oneshot_wait)
 
 if clientID == -1:
     raise Exception("Fail to connect remote API server.")
@@ -21,7 +23,6 @@ if clientID == -1:
 def init():
     """Initialize the simulation.
     """
-
     vrep.simxGetVisionSensorImage(clientID, vision_sensor, 0, vrep.simx_opmode_streaming)
     time.sleep(1)
 
@@ -43,3 +44,19 @@ def get_image(sensor):
         return edge
     else:
         return None
+
+
+def move(v, o):
+    """Move the robot.
+
+    :param v: desired velocity
+    :param o: desired angular velocity
+    """
+    wheel_radius = 0.027
+    distance = 0.119
+    v_l = v - o * distance
+    v_r = v + o * distance
+    o_l = v_l / wheel_radius
+    o_r = v_r / wheel_radius
+    vrep.simxSetJointTargetVelocity(clientID, left_motor, o_l, vrep.simx_opmode_oneshot)
+    vrep.simxSetJointTargetVelocity(clientID, right_motor, o_r, vrep.simx_opmode_oneshot)
