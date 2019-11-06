@@ -111,8 +111,8 @@ class RRT:
     def calc_dist_to_goal(self, x: float, y: float):
         """Calculate the distance between node (x, y) and Goal Position.
 
-        :param x: the x-cord of the node
-        :param y: the y-cord of the node
+        :param x: the x-coordinate of the node
+        :param y: the y-coordinate of the node
         :return: the distance between node (x, y) and Goal Position
         """
         dx = x - self.end.x

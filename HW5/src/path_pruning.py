@@ -3,22 +3,47 @@ from typing import List, Tuple
 import cv2
 import numpy as np
 
-from utils import get_obstacles, draw_path
+from utils import get_obstacles, draw_path, distance
 
 
 def path_pruning(path: np.ndarray, obstacles: List[Tuple[int, int, int]]):
     """Prune the solution path.
 
     :param path: the solution path
+    :param obstacles: the list of obstacles
     :return: the pruned path
     """
     pruned_path = [path[0]]
-    print(pruned_path)
-    return path
+    n = len(path)
+    m = len(obstacles)
+    cur = 0
+    while True:
+        if cur == n - 1:
+            break
+        to = cur + 1
+        for j in range(cur + 1, min(cur + 6, n)):
+            x1 = path[cur][0]
+            y1 = path[cur][1]
+            x2 = path[j][0]
+            y2 = path[j][1]
+            mx = (x1 + x2) / 2
+            my = (y1 + y2) / 2
+            min_dist = 99999999
+            th = 2
+            for k in range(m):
+                x = obstacles[k][0]
+                y = obstacles[k][1]
+                th = obstacles[k][2]
+                min_dist = min(min_dist, distance(x, y, mx, my))
+            if min_dist > th:
+                to = max(to, j)
+        pruned_path.append(path[to])
+        cur = to
+    return np.array(pruned_path)
 
 
-def test():
-    """Test: Path Pruning.
+def main():
+    """Path Pruning.
     """
     # Load the maze image.
     img = cv2.imread("maze.png", cv2.THRESH_BINARY)  # type:np.ndarray
@@ -38,4 +63,4 @@ def test():
 
 
 if __name__ == '__main__':
-    test()
+    main()

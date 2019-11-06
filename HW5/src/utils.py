@@ -1,49 +1,5 @@
-import time
-
-import cv2
+import math
 import numpy as np
-
-import vrep
-
-clientID = None
-vision_sensor = None
-
-
-def init():
-    """Initialize the simulation.
-    """
-    global clientID, vision_sensor
-    # Close all the connections.
-    vrep.simxFinish(-1)
-    # Connect the V-REP.
-    clientID = vrep.simxStart("127.0.0.1", 19999, True, True, 5000, 5)
-
-    # Get object handles.
-    _, vision_sensor = vrep.simxGetObjectHandle(clientID, 'Vision_Sensor', vrep.simx_opmode_oneshot_wait)
-
-    if clientID == -1:
-        raise Exception("Fail to connect remote API server.")
-    vrep.simxGetVisionSensorImage(clientID, vision_sensor, 0, vrep.simx_opmode_streaming)
-    time.sleep(1)
-
-
-def get_image(sensor):
-    """Retrieve a binary image from Vision Sensor.
-
-    :return: a binary image represented by numpy.ndarray from Vision Sensor
-    """
-    err, resolution, raw = vrep.simxGetVisionSensorImage(clientID, sensor, 0, vrep.simx_opmode_buffer)
-    if err == vrep.simx_return_ok:
-        img = np.array(raw, dtype=np.uint8)
-        img.resize([resolution[1], resolution[0], 3])
-        # Process the raw image.
-        _, th1 = cv2.threshold(img, 100, 255, cv2.THRESH_BINARY)
-        g = cv2.cvtColor(th1, cv2.COLOR_BGR2GRAY)
-        _, th2 = cv2.threshold(g, 250, 255, cv2.THRESH_BINARY)
-        edge = cv2.Canny(th2, 50, 150)  # type: np.ndarray
-        return edge
-    else:
-        return None
 
 
 def get_obstacles(img: np.ndarray):
@@ -71,3 +27,17 @@ def draw_path(img: np.ndarray, path: np.ndarray):
         x, y = int(path[i][0]), int(path[i][1])
         img[x][y] = 255
     return img
+
+
+def distance(x1: float, y1: float, x2: float, y2: float):
+    """Calculate the distance between (x1, y1) and (x2, y2).
+
+    :param x1: x-coordinate of (x1, y1)
+    :param y1: y-coordinate of (x1, y1)
+    :param x2: x-coordinate of (x2, y2)
+    :param y2: y-coordinate of (x2, y2)
+    :return: the distance between (x1, y1) and (x2, y2)
+    """
+    dx = x1 - x2
+    dy = y1 - y2
+    return math.sqrt(dx * dx + dy * dy)
