@@ -1,3 +1,5 @@
+from typing import Tuple
+
 import math
 import numpy as np
 
@@ -41,3 +43,14 @@ def distance(x1: float, y1: float, x2: float, y2: float):
     dx = x1 - x2
     dy = y1 - y2
     return math.sqrt(dx * dx + dy * dy)
+
+
+def world_coordinate(coord: Tuple[float, float]):
+    """Convert Sensor-Coordinate to World-Coordinate.
+
+    :param coord: Coordinate related to Vision Sensor
+    :return: World-Coordinate
+    """
+    k = 64 * math.sqrt(3)
+    x, y = (256 - coord[0]) / k, (coord[1] - 256) / k + 0.8
+    return x, y
