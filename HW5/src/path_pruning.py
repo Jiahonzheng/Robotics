@@ -13,28 +13,29 @@ def path_pruning(path: np.ndarray, obstacles: List[Tuple[int, int, int]]):
     :return: the pruned path
     """
     pruned_path = [path[0]]
-    n = len(path)
-    m = len(obstacles)
+    n, m = len(path), len(obstacles)
     cur = 0
+    th = obstacles[0][2]
+    # 将连线进行 n 等分操作。
+    sz = 7
     while True:
         if cur == n - 1:
             break
         to = cur + 1
         for j in range(cur + 1, min(cur + 6, n)):
-            x1 = path[cur][0]
-            y1 = path[cur][1]
-            x2 = path[j][0]
-            y2 = path[j][1]
-            mx = (x1 + x2) / 2
-            my = (y1 + y2) / 2
-            min_dist = 99999999
-            th = 2
-            for k in range(m):
-                x = obstacles[k][0]
-                y = obstacles[k][1]
-                th = obstacles[k][2]
-                min_dist = min(min_dist, distance(x, y, mx, my))
-            if min_dist > th:
+            x1, y1 = path[cur][0], path[cur][1]
+            x2, y2 = path[j][0], path[j][1]
+            ok = True
+            for h in range(sz):
+                mx, my = (h * x1 + (sz - h) * x2) / sz, (h * y1 + (sz - h) * y2) / sz
+                min_dist = 99999999
+                for k in range(m):
+                    x, y = obstacles[k][0], obstacles[k][1]
+                    min_dist = min(min_dist, distance(x, y, mx, my))
+                if min_dist <= th:
+                    ok = False
+                    break
+            if ok:
                 to = max(to, j)
         pruned_path.append(path[to])
         cur = to
