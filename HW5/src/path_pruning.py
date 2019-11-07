@@ -57,6 +57,7 @@ def main():
     # Prune the solution path.
     pruned_path = path_pruning(path, get_obstacles(img))
     cv2.imshow("Pruned Solution", draw_path(img.copy(), pruned_path))
+    cv2.imwrite("pruned_solution.png", draw_path(img.copy(), pruned_path))
 
     for i in range(len(pruned_path)):
         print(world_coordinate(pruned_path[i]))

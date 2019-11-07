@@ -40,6 +40,7 @@ def main():
 
     # Show the solution.
     cv2.imshow("Solution", draw_path(img, solution))
+    cv2.imwrite("solution.png", draw_path(img, solution))
 
     # When we press "q", the program will exit.
     while True:
