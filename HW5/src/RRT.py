@@ -54,35 +54,45 @@ class RRT:
         """
         self.node_list = [self.start]
         for i in range(self.max_iter):
+            # Generate a sample node.
             rnd_node = self.get_random_node()
+            # Find the nearest node to the rnd_node.
             nearest_ind = self.get_nearest_node_index(self.node_list, rnd_node)
             nearest_node = self.node_list[nearest_ind]
-
+            # Expand the tree.
             new_node = self.steer(nearest_node, rnd_node, self.expand_dis)
+            # When there are no collisions, add new_node to the tree.
             if self.check_collision(new_node, self.obstacle_list):
                 self.node_list.append(new_node)
-
-            tmp = self.node_list[-1]
-            x, y = int(tmp.x), int(tmp.y)
-            img[x][y] = 255
-            cv2.imshow("Processing", img)
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
-
+                # Show the expanding process.
+                tmp = self.node_list[-1]
+                x, y = int(tmp.x), int(tmp.y)
+                img[x][y] = 255
+                cv2.imshow("Processing", img)
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    break
+            # Check whether it reaches the goal.
             if self.calc_dist_to_goal(self.node_list[-1].x, self.node_list[-1].y) <= self.expand_dis:
                 final_node = self.steer(self.node_list[-1], self.end, self.expand_dis)
                 if self.check_collision(final_node, self.obstacle_list):
                     return self.generate_final_course()
         return None
 
-    def steer(self, from_node: Node, to_node: Node, extend_length=float("inf")):
+    def steer(self, from_node: Node, to_node: Node, expand_length=float("inf")):
+        """Expand the tree from from_node to to_node.
+        
+        :param from_node: from which node to expand
+        :param to_node: to which node to expand
+        :param expand_length: expand length
+        :return: the new node
+        """
         new_node = self.Node(from_node.x, from_node.y)
         d, theta = self.calc_distance_and_angle(new_node, to_node)
         new_node.path_x = [new_node.x]
         new_node.path_y = [new_node.y]
-        if extend_length > d:
-            extend_length = d
-        n_expand = math.floor(extend_length / self.path_resolution)
+        if expand_length > d:
+            expand_length = d
+        n_expand = math.floor(expand_length / self.path_resolution)
         for _ in range(n_expand):
             new_node.x += self.path_resolution * math.cos(theta)
             new_node.y += self.path_resolution * math.sin(theta)
@@ -133,6 +143,12 @@ class RRT:
 
     @staticmethod
     def get_nearest_node_index(node_list: List[Node], rnd_node: Node):
+        """Find the nearest node to rnd_node in node_list.
+
+        :param node_list: the candidate nodes
+        :param rnd_node: the target node
+        :return: the nearest node to rnd_node in node_list
+        """
         distances = [(node.x - rnd_node.x) ** 2 + (node.y - rnd_node.y) ** 2 for node in node_list]
         nearest = distances.index(min(distances))
         return nearest

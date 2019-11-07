@@ -41,6 +41,7 @@ def get_image(sensor):
         _, th1 = cv2.threshold(img, 100, 255, cv2.THRESH_BINARY)
         g = cv2.cvtColor(th1, cv2.COLOR_BGR2GRAY)
         _, th2 = cv2.threshold(g, 250, 255, cv2.THRESH_BINARY)
+        # Find the edges using Canny.
         edge = cv2.Canny(th2, 50, 150)  # type: np.ndarray
         return edge
     else:

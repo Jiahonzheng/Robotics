@@ -22,23 +22,25 @@ def path_planning(img: np.ndarray):
         raise Exception("Cannot find the path.")
     # Save the solution.
     np.savetxt("solution.txt", np.array(path), fmt="%s")
-    # Draw the solution path.
-    draw_path(img, path)
+    return path
 
 
-def test():
-    """Test: Path Planning.
+def main():
+    """Path Planning.
     """
     # Load the maze image.
     img = cv2.imread("maze.png", cv2.THRESH_BINARY)  # type:np.ndarray
     cv2.imshow("Maze", img)
+
     # Find the solution.
     start = time.time()
-    path_planning(img)
+    solution = path_planning(img)
     cost = time.time() - start
     print(f"It costs {cost} seconds to find the path.")
+
     # Show the solution.
-    cv2.imshow("Solution", img)
+    cv2.imshow("Solution", draw_path(img, solution))
+
     # When we press "q", the program will exit.
     while True:
         if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -46,4 +48,4 @@ def test():
 
 
 if __name__ == '__main__':
-    test()
+    main()
