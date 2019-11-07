@@ -14,12 +14,13 @@ def path_following(path: List[Tuple[int, int]]):
     goal_angle = None
     tolerance = 2
     while vrep.simxGetConnectionId(clientID) != -1:
-        _, cur = vrep.simxGetObjectPosition(clientID, bot, -1, vrep.simx_opmode_oneshot_wait)
-
+        # When it reaches the Goal Position, we stop the scripts.
         if i == len(path):
             break
-
         if stage == 0:
+            # Steer for specific angle.
+            # Get current position.
+            _, cur = vrep.simxGetObjectPosition(clientID, bot, -1, vrep.simx_opmode_oneshot_wait)
             cur_angle = get_beta_angle()
             if goal_angle is None:
                 phi = math.atan2(path[i][0] - cur[0], path[i][1] - cur[1])
@@ -35,16 +36,17 @@ def path_following(path: List[Tuple[int, int]]):
             move(0, 0)
             stage = 1
             continue
-
         if stage == 1:
+            # Go straight for specific distance.
+            # Get current position.
+            _, cur = vrep.simxGetObjectPosition(clientID, bot, -1, vrep.simx_opmode_oneshot_wait)
             dis = distance(cur[0], cur[1], path[i][0], path[i][1])
             if dis < 0.1:
-                print(path[i])
                 i += 1
                 stage = 0
                 move(0, 0)
                 continue
-            move(0.1, 0)
+            move(0.5, 0)
             continue
 
 
@@ -55,7 +57,7 @@ def main():
     init()
 
     # Load the solution path.
-    solution = np.loadtxt("solution.txt")
+    solution = np.loadtxt("pruned_solution.txt")
     # Convert the coordinates.
     path = []
     for i in range(len(solution)):
